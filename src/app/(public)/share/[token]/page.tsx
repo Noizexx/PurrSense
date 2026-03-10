@@ -7,14 +7,16 @@ import { calcAge, formatDate } from "@/lib/utils";
 
 export const runtime = "edge";
 
-interface Props { params: { token: string } }
+interface Props { params: Promise<{ token: string }> }
 
 export default async function SharePage({ params }: Props) {
+  const { token } = await params;
+
   const { env } = getRequestContext();
   const db = getDb(env);
 
   const share = await db.query.shareTokens.findFirst({
-    where: eq(shareTokens.token, params.token),
+    where: eq(shareTokens.token, token),
   });
 
   if (!share || new Date(share.expiresAt) < new Date()) notFound();
