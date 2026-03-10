@@ -17,12 +17,14 @@ async function verifyOwnership(catId: string, userId: string) {
 
 export async function PUT(
   req: Request,
-  { params }: { params: { catId: string; logId: string } }
+  { params }: { params: Promise<{ catId: string; logId: string }> }
 ) {
+  const { catId, logId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const body = await req.json();
@@ -34,7 +36,7 @@ export async function PUT(
 
   const updated = await db.update(dailyLogs)
     .set(parsed.data)
-    .where(and(eq(dailyLogs.id, params.logId), eq(dailyLogs.catId, params.catId)))
+    .where(and(eq(dailyLogs.id, logId), eq(dailyLogs.catId, catId)))
     .returning();
 
   if (!updated.length) return Response.json({ error: "Non trovato" }, { status: 404 });
@@ -43,19 +45,21 @@ export async function PUT(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { catId: string; logId: string } }
+  { params }: { params: Promise<{ catId: string; logId: string }> }
 ) {
+  const { catId, logId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const { env } = getRequestContext();
   const db = getDb(env);
 
   await db.delete(dailyLogs)
-    .where(and(eq(dailyLogs.id, params.logId), eq(dailyLogs.catId, params.catId)));
+    .where(and(eq(dailyLogs.id, logId), eq(dailyLogs.catId, catId)));
 
   return Response.json({ ok: true });
 }

@@ -16,29 +16,33 @@ async function verifyOwnership(catId: string, userId: string) {
   });
 }
 
-export async function GET(_req: Request, { params }: { params: { catId: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const { env } = getRequestContext();
   const db = getDb(env);
 
   const items = await db.query.prevention.findMany({
-    where: eq(prevention.catId, params.catId),
+    where: eq(prevention.catId, catId),
     orderBy: (p, { asc }) => [asc(p.nextDate)],
   });
 
   return Response.json(items);
 }
 
-export async function POST(req: Request, { params }: { params: { catId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const body = await req.json();
@@ -50,18 +54,20 @@ export async function POST(req: Request, { params }: { params: { catId: string }
 
   const item = await db.insert(prevention).values({
     id: nanoid(),
-    catId: params.catId,
+    catId,
     ...parsed.data,
   }).returning();
 
   return Response.json(item[0], { status: 201 });
 }
 
-export async function DELETE(req: Request, { params }: { params: { catId: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const url = new URL(req.url);
@@ -72,7 +78,7 @@ export async function DELETE(req: Request, { params }: { params: { catId: string
   const db = getDb(env);
 
   await db.delete(prevention)
-    .where(and(eq(prevention.id, prevId), eq(prevention.catId, params.catId)));
+    .where(and(eq(prevention.id, prevId), eq(prevention.catId, catId)));
 
   return Response.json({ ok: true });
 }

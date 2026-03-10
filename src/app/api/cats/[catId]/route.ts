@@ -15,21 +15,25 @@ async function getCatOrNull(catId: string, userId: string) {
   });
 }
 
-export async function GET(_req: Request, { params }: { params: { catId: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await getCatOrNull(params.catId, session.user.id);
+  const cat = await getCatOrNull(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   return Response.json(cat);
 }
 
-export async function PUT(req: Request, { params }: { params: { catId: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await getCatOrNull(params.catId, session.user.id);
+  const cat = await getCatOrNull(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const body = await req.json();
@@ -42,23 +46,25 @@ export async function PUT(req: Request, { params }: { params: { catId: string } 
   const updated = await db
     .update(cats)
     .set({ ...parsed.data, updatedAt: new Date().toISOString() })
-    .where(and(eq(cats.id, params.catId), eq(cats.userId, session.user.id)))
+    .where(and(eq(cats.id, catId), eq(cats.userId, session.user.id)))
     .returning();
 
   return Response.json(updated[0]);
 }
 
-export async function DELETE(_req: Request, { params }: { params: { catId: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await getCatOrNull(params.catId, session.user.id);
+  const cat = await getCatOrNull(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const { env } = getRequestContext();
   const db = getDb(env);
 
-  await db.delete(cats).where(and(eq(cats.id, params.catId), eq(cats.userId, session.user.id)));
+  await db.delete(cats).where(and(eq(cats.id, catId), eq(cats.userId, session.user.id)));
 
   return Response.json({ ok: true });
 }

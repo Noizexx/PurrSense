@@ -16,11 +16,13 @@ async function verifyOwnership(catId: string, userId: string) {
   });
 }
 
-export async function GET(req: Request, { params }: { params: { catId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const url = new URL(req.url);
@@ -30,7 +32,7 @@ export async function GET(req: Request, { params }: { params: { catId: string } 
   const db = getDb(env);
 
   const logs = await db.query.dailyLogs.findMany({
-    where: eq(dailyLogs.catId, params.catId),
+    where: eq(dailyLogs.catId, catId),
     orderBy: [desc(dailyLogs.date)],
     limit,
   });
@@ -38,11 +40,13 @@ export async function GET(req: Request, { params }: { params: { catId: string } 
   return Response.json(logs.reverse());
 }
 
-export async function POST(req: Request, { params }: { params: { catId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const cat = await verifyOwnership(params.catId, session.user.id);
+  const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const body = await req.json();
@@ -54,7 +58,7 @@ export async function POST(req: Request, { params }: { params: { catId: string }
 
   // Upsert by date
   const existing = await db.query.dailyLogs.findFirst({
-    where: and(eq(dailyLogs.catId, params.catId), eq(dailyLogs.date, parsed.data.date)),
+    where: and(eq(dailyLogs.catId, catId), eq(dailyLogs.date, parsed.data.date)),
   });
 
   if (existing) {
@@ -67,7 +71,7 @@ export async function POST(req: Request, { params }: { params: { catId: string }
 
   const log = await db.insert(dailyLogs).values({
     id: nanoid(),
-    catId: params.catId,
+    catId,
     ...parsed.data,
   }).returning();
 
