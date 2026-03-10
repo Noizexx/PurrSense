@@ -5,7 +5,7 @@ import { users, verificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { registerSchema } from "@/lib/validators";
 import { generateToken } from "@/lib/utils";
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcrypt-edge';
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
 

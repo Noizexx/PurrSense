@@ -6,7 +6,7 @@ import { getRequestContext } from "@cloudflare/next-on-pages";
 import { getDb } from "@/lib/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcrypt-edge';
 import { z } from "zod";
 
 export const { handlers, signIn, signOut, auth } = NextAuth(() => {
