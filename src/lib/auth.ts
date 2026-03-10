@@ -2,15 +2,15 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { getRequestContext } from "@cloudflare/next-on-pages";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getDb } from "@/lib/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from 'bcrypt-edge';
+import bcrypt from "@node-rs/bcrypt";
 import { z } from "zod";
 
 export const { handlers, signIn, signOut, auth } = NextAuth(() => {
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   return {
@@ -26,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
         : []),
       Credentials({
         credentials: {
-          email:    { label: "Email",    type: "email" },
+          email: { label: "Email", type: "email" },
           password: { label: "Password", type: "password" },
         },
         async authorize(credentials) {
@@ -41,7 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
 
           if (!user?.passwordHash) return null;
 
-          const ok = await bcrypt.compare(parsed.data.password, user.passwordHash);
+          const ok = await bcrypt.verify(parsed.data.password, user.passwordHash);
           if (!ok) return null;
 
           if (!user.emailVerified) {
@@ -53,9 +53,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
       }),
     ],
     pages: {
-      signIn:  "/login",
+      signIn: "/login",
       signOut: "/login",
-      error:   "/login",
+      error: "/login",
     },
     session: { strategy: "jwt" },
     callbacks: {

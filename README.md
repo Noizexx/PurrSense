@@ -106,7 +106,6 @@ git push -u origin main
 | Campo | Valore |
 |-------|--------|
 | Framework preset | `Next.js` |
-| Build command | `npx @cloudflare/next-on-pages@1` |
 | Build output directory | `.vercel/output/static` |
 
 ### 7.3 Aggiungi le variabili d'ambiente

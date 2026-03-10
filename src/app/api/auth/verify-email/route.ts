@@ -1,4 +1,4 @@
-import { getRequestContext } from "@cloudflare/next-on-pages";
+
 import { getDb } from "@/lib/db";
 import { users, verificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";

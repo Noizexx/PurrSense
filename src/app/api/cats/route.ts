@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { getRequestContext } from "@cloudflare/next-on-pages";
 import { getDb } from "@/lib/db";
 import { cats } from "@/db/schema";
 import { eq } from "drizzle-orm";
