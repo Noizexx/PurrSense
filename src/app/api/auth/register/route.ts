@@ -9,8 +9,6 @@ import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
 
-export const runtime = "nodejs";
-
 export async function POST(req: Request) {
   const body = await req.json();
   const parsed = registerSchema.safeParse(body);
