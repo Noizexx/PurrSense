@@ -12,17 +12,19 @@ import CatDashboardClient from "@/components/CatDashboardClient";
 export const runtime = "edge";
 
 interface Props {
-  params: { catId: string };
+  params: Promise<{ catId: string }>;
 }
 
 export default async function CatPage({ params }: Props) {
+  const { catId } = await params;
+
   const session = await auth();
   const { env } = getRequestContext();
   const db = getDb(env);
 
   // Ownership check
   const cat = await db.query.cats.findFirst({
-    where: and(eq(cats.id, params.catId), eq(cats.userId, session!.user!.id!)),
+    where: and(eq(cats.id, catId), eq(cats.userId, session!.user!.id!)),
   });
   if (!cat) notFound();
 
