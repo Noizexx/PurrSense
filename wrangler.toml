@@ -14,10 +14,3 @@ database_id = "2f28f544-5728-40f8-99e4-adaee5bbb704"
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "gatto-uploads"
-```
-
-Salva con **Ctrl+S**, poi nel terminale:
-```
-git add wrangler.toml
-git commit -m "fix: build command in wrangler.toml"
-git push
