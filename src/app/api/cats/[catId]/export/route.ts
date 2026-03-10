@@ -6,7 +6,9 @@ import { eq, and } from "drizzle-orm";
 
 export const runtime = "edge";
 
-export async function GET(req: Request, { params }: { params: { catId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ catId: string }> }) {
+  const { catId } = await params;
+
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
@@ -14,17 +16,17 @@ export async function GET(req: Request, { params }: { params: { catId: string } 
   const db = getDb(env);
 
   const cat = await db.query.cats.findFirst({
-    where: and(eq(cats.id, params.catId), eq(cats.userId, session.user.id)),
+    where: and(eq(cats.id, catId), eq(cats.userId, session.user.id)),
   });
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
   const logs = await db.query.dailyLogs.findMany({
-    where: eq(dailyLogs.catId, params.catId),
+    where: eq(dailyLogs.catId, catId),
     orderBy: (l, { asc }) => [asc(l.date)],
   });
 
   const prevItems = await db.query.prevention.findMany({
-    where: eq(prevention.catId, params.catId),
+    where: eq(prevention.catId, catId),
   });
 
   const url = new URL(req.url);
