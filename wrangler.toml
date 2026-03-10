@@ -3,6 +3,9 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
+[build]
+command = "npm install --legacy-peer-deps && npx @cloudflare/next-on-pages@1"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "gatto-dashboard-db"
@@ -11,3 +14,10 @@ database_id = "2f28f544-5728-40f8-99e4-adaee5bbb704"
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "gatto-uploads"
+```
+
+Salva con **Ctrl+S**, poi nel terminale:
+```
+git add wrangler.toml
+git commit -m "fix: build command in wrangler.toml"
+git push
