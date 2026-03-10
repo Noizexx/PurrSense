@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# build
+.next/
+.vercel/
+out/
+
+# env
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+
+# wrangler
+.wrangler/
+
+# uploads locale
+public/uploads/*
+!public/uploads/.gitkeep

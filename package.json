@@ -1,0 +1,49 @@
+{
+  "name": "gatto-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "preview": "npm run pages:build && wrangler pages dev",
+    "deploy": "npm run pages:build && wrangler pages deploy",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 execute gatto-dashboard-db --local --file=drizzle/migrations/0000_init.sql",
+    "db:migrate:prod": "wrangler d1 execute gatto-dashboard-db --file=drizzle/migrations/0000_init.sql",
+    "db:seed:local": "wrangler d1 execute gatto-dashboard-db --local --file=drizzle/seed.sql",
+    "db:seed:prod": "wrangler d1 execute gatto-dashboard-db --file=drizzle/seed.sql",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "15.2.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "next-auth": "^5.0.0-beta.19",
+    "@auth/drizzle-adapter": "^1.1.0",
+    "drizzle-orm": "^0.31.2",
+    "bcryptjs": "^2.4.3",
+    "resend": "^3.3.0",
+    "nanoid": "^5.0.7",
+    "zod": "^3.23.8",
+    "recharts": "^2.12.7",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/bcryptjs": "^2.4.6",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8",
+    "autoprefixer": "^10.0.1",
+    "drizzle-kit": "^0.22.7",
+    "@cloudflare/next-on-pages": "^1.12.1",
+    "wrangler": "^3.60.3",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5"
+  }
+}
