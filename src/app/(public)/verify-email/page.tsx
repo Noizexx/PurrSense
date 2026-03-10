@@ -1,17 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center px-4">
+          <div className="text-center max-w-sm">
+            <div className="text-5xl mb-4 animate-pulse">🔄</div>
+            <p className="text-gray-600">Verifica in corso...</p>
+          </div>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailContent() {
   const params = useSearchParams();
   const router = useRouter();
   const token = params.get("token");
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
 
   useEffect(() => {
-    if (!token) { setStatus("error"); return; }
+    if (!token) {
+      setStatus("error");
+      return;
+    }
     fetch("/api/auth/verify-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -19,8 +39,10 @@ export default function VerifyEmailPage() {
     })
       .then((r) => r.json())
       .then((d) => {
-        if (d.ok) { setStatus("ok"); setTimeout(() => router.push("/login"), 2000); }
-        else setStatus("error");
+        if (d.ok) {
+          setStatus("ok");
+          setTimeout(() => router.push("/login"), 2000);
+        } else setStatus("error");
       })
       .catch(() => setStatus("error"));
   }, [token, router]);
