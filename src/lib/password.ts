@@ -27,7 +27,8 @@ function toBase64(buffer: ArrayBuffer): string {
 
 function fromBase64(str: string): ArrayBuffer {
   if (typeof Buffer !== "undefined") {
-    return Buffer.from(str, "base64");
+    const buf = Buffer.from(str, "base64");
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
   }
   const binary = atob(str);
   const bytes = new Uint8Array(binary.length);
