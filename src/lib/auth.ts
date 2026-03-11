@@ -9,8 +9,8 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { verifyPassword } from "@/lib/password";
 
-export const { handlers, signIn, signOut, auth } = NextAuth(() => {
-  const { env } = getCloudflareContext();
+export const { handlers, signIn, signOut, auth } = NextAuth(async () => {
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   return {
@@ -34,20 +34,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
             .object({ email: z.string().email(), password: z.string().min(8) })
             .safeParse(credentials);
           if (!parsed.success) return null;
-
           const user = await db.query.users.findFirst({
             where: eq(users.email, parsed.data.email.toLowerCase()),
           });
-
           if (!user?.passwordHash) return null;
-
           const ok = await verifyPassword(parsed.data.password, user.passwordHash);
           if (!ok) return null;
-
           if (!user.emailVerified) {
             throw new Error("EMAIL_NOT_VERIFIED");
           }
-
           return { id: user.id, email: user.email, name: user.name };
         },
       }),
