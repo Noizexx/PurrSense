@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.1.0",
-    "@node-rs/bcrypt": "^1.10.4",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.31.2",

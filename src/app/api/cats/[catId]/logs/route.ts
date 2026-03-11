@@ -4,11 +4,12 @@ import { cats, dailyLogs } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { logSchema } from "@/lib/validators";
 import { nanoid } from "nanoid";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
 async function verifyOwnership(catId: string, userId: string) {
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
   return db.query.cats.findFirst({
     where: and(eq(cats.id, catId), eq(cats.userId, userId)),
@@ -27,7 +28,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ catId: s
   const url = new URL(req.url);
   const limit = Math.min(Number(url.searchParams.get("limit") ?? 90), 365);
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const logs = await db.query.dailyLogs.findMany({
@@ -52,7 +53,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ catId: 
   const parsed = logSchema.safeParse(body);
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   // Upsert by date

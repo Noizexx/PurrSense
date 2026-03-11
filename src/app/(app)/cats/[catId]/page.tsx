@@ -7,6 +7,7 @@ import Link from "next/link";
 import { calcAge, formatDate, daysUntil } from "@/lib/utils";
 import { generateAlerts } from "@/lib/alertEngine";
 import CatDashboardClient from "@/components/CatDashboardClient";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
@@ -18,7 +19,7 @@ export default async function CatPage({ params }: Props) {
   const { catId } = await params;
 
   const session = await auth();
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   // Ownership check

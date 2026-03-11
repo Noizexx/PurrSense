@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { cats, dailyLogs, prevention } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
@@ -11,7 +12,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ catId: s
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const cat = await db.query.cats.findFirst({

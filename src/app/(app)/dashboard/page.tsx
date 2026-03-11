@@ -4,12 +4,13 @@ import { cats } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { calcAge } from "@/lib/utils";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const userCats = await db.query.cats.findMany({

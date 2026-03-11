@@ -4,6 +4,7 @@ import { shareTokens, cats, dailyLogs, prevention } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { calcAge, formatDate } from "@/lib/utils";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
@@ -12,7 +13,7 @@ interface Props { params: Promise<{ token: string }> }
 export default async function SharePage({ params }: Props) {
   const { token } = await params;
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const share = await db.query.shareTokens.findFirst({

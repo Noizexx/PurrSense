@@ -4,6 +4,7 @@ import { cats, shareTokens } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { generateToken } from "@/lib/utils";
 import { nanoid } from "nanoid";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
@@ -13,7 +14,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ catId: 
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const cat = await db.query.cats.findFirst({

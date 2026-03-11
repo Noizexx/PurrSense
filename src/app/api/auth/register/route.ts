@@ -4,9 +4,10 @@ import { users, verificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { registerSchema } from "@/lib/validators";
 import { generateToken } from "@/lib/utils";
-import bcrypt from 'bcrypt-edge';
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
+import { hashPassword } from "@/lib/password";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
     return Response.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   // Check duplicate email
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   }
 
   const userId = nanoid();
-  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+  const passwordHash = await hashPassword(parsed.data.password);
 
   await db.insert(users).values({
     id: userId,

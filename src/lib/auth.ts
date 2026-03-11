@@ -6,8 +6,8 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getDb } from "@/lib/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "@node-rs/bcrypt";
 import { z } from "zod";
+import { verifyPassword } from "@/lib/password";
 
 export const { handlers, signIn, signOut, auth } = NextAuth(() => {
   const { env } = getCloudflareContext();
@@ -41,7 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
 
           if (!user?.passwordHash) return null;
 
-          const ok = await bcrypt.verify(parsed.data.password, user.passwordHash);
+          const ok = await verifyPassword(parsed.data.password, user.passwordHash);
           if (!ok) return null;
 
           if (!user.emailVerified) {

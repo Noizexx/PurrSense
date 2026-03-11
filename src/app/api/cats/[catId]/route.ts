@@ -3,11 +3,12 @@ import { getDb } from "@/lib/db";
 import { cats } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { catSchema } from "@/lib/validators";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
 async function getCatOrNull(catId: string, userId: string) {
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
   return db.query.cats.findFirst({
     where: and(eq(cats.id, catId), eq(cats.userId, userId)),
@@ -39,7 +40,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ catId: s
   const parsed = catSchema.partial().safeParse(body);
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const updated = await db
@@ -60,7 +61,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ catI
   const cat = await getCatOrNull(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   await db.delete(cats).where(and(eq(cats.id, catId), eq(cats.userId, session.user.id)));

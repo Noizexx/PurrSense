@@ -3,11 +3,12 @@ import { getDb } from "@/lib/db";
 import { cats, dailyLogs } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { logSchema } from "@/lib/validators";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "edge";
 
 async function verifyOwnership(catId: string, userId: string) {
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
   return db.query.cats.findFirst({
     where: and(eq(cats.id, catId), eq(cats.userId, userId)),
@@ -30,7 +31,7 @@ export async function PUT(
   const parsed = logSchema.partial().safeParse(body);
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   const updated = await db.update(dailyLogs)
@@ -54,7 +55,7 @@ export async function DELETE(
   const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
   const db = getDb(env);
 
   await db.delete(dailyLogs)
