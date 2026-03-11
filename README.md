@@ -42,7 +42,27 @@ wrangler d1 create gatto-dashboard-db
 wrangler r2 bucket create gatto-uploads
 ```
 
-Apri `wrangler.toml` e incolla il `database_id` dove indicato.
+Apri `wrangler.toml` e incolla il `database_id` dove indicato:
+
+```toml
+name = "gatto-dashboard"
+main = ".open-next/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gatto-dashboard-db"
+database_id = "IL-TUO-DATABASE-ID"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "gatto-uploads"
+```
 
 ---
 
@@ -53,7 +73,8 @@ Genera due stringhe random (esegui due volte):
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Apri `.env.local` e compila:
+### 4.1 Sviluppo locale — `.env.local`
+
 ```env
 AUTH_SECRET=<prima-stringa-random>
 AUTH_URL=http://localhost:3000
@@ -65,22 +86,40 @@ SHARE_SECRET=<seconda-stringa-random>
 
 Per `RESEND_API_KEY`: registrati su https://resend.com → API Keys → Create.
 
+### 4.2 Produzione — variabili sul Worker
+
+Le variabili d'ambiente per il Worker si impostano tramite Wrangler (mai committare i segreti nel `wrangler.toml`):
+
+```bash
+wrangler secret put AUTH_SECRET
+wrangler secret put RESEND_API_KEY
+wrangler secret put RESEND_FROM
+wrangler secret put SHARE_SECRET
+wrangler secret put AUTH_URL          # es. https://gatto-dashboard.workers.dev
+wrangler secret put NEXT_PUBLIC_BASE_URL  # stesso valore di AUTH_URL
+```
+
+Oppure in una sola volta dal pannello: **dash.cloudflare.com → Workers & Pages → gatto-dashboard → Settings → Variables and Secrets**.
+
 ---
 
 ## PARTE 5 — Crea le tabelle e testa in locale
 
 ```bash
-npm run db:migrate:local    # crea le tabelle
+npm run db:migrate:local    # crea le tabelle nel D1 locale
 npm run db:seed:local       # carica dati di esempio (opzionale)
-npm run dev                 # avvia in locale su http://localhost:3000
+npm run dev                 # avvia Next.js in locale su http://localhost:3000
+```
+
+Per testare con il runtime Cloudflare in locale (miniflare):
+
+```bash
+npm run preview             # build OpenNext + wrangler dev
 ```
 
 ---
 
 ## PARTE 6 — Carica su GitHub
-
-1. Vai su https://github.com/new → crea repo `gatto-dashboard` (Private)
-2. Esegui:
 
 ```bash
 git init
@@ -91,67 +130,27 @@ git remote add origin https://github.com/TUO-USERNAME/gatto-dashboard.git
 git push -u origin main
 ```
 
----
-
-## PARTE 7 — Deploy su Cloudflare Pages
-
-### 7.1 Collega il repo
-
-1. **dash.cloudflare.com** → Workers & Pages → Create → Pages
-2. Connect to Git → autorizza GitHub → seleziona `gatto-dashboard`
-3. Clicca "Begin setup"
-
-### 7.2 Configura il build
-
-| Campo | Valore |
-|-------|--------|
-| Framework preset | `Next.js` |
-| Build output directory | `.vercel/output/static` |
-
-### 7.3 Aggiungi le variabili d'ambiente
-
-Nella stessa schermata, sezione "Environment variables":
-
-| Variabile | Valore |
-|-----------|--------|
-| `NODE_VERSION` | `20` |
-| `AUTH_SECRET` | *(stessa di .env.local)* |
-| `RESEND_API_KEY` | *(la tua chiave Resend)* |
-| `RESEND_FROM` | `Dashboard Gatto <noreply@tuodominio.com>` |
-| `SHARE_SECRET` | *(stessa di .env.local)* |
-
-Clicca **Save and Deploy** → attendi 3-5 minuti.
+> Il `database_id` nel `wrangler.toml` non è un segreto — può stare nel repo.
+> I segreti (password, API key) vanno **solo** tramite `wrangler secret put`.
 
 ---
 
-### 7.4 Aggiungi i binding D1 e R2
+## PARTE 7 — Deploy su Cloudflare Worker
 
-Dopo il deploy: **Settings → Functions**
+### 7.1 Build e deploy
 
-**D1 binding:**
-- Add binding → Variable name: `DB` → seleziona `gatto-dashboard-db` → Save
+```bash
+npm run deploy
+# equivale a: opennextjs-cloudflare build && wrangler deploy
+```
 
-**R2 binding:**
-- Add binding → Variable name: `R2` → seleziona `gatto-uploads` → Save
+Al primo deploy il Worker sarà disponibile su:
+`https://gatto-dashboard.<tuo-account>.workers.dev`
 
----
+### 7.2 Dominio personalizzato (opzionale)
 
-### 7.5 Aggiungi l'URL definitivo
-
-Il tuo URL sarà tipo `https://gatto-dashboard.pages.dev`
-
-In **Settings → Environment variables** aggiungi:
-
-| Variabile | Valore |
-|-----------|--------|
-| `AUTH_URL` | `https://gatto-dashboard.pages.dev` |
-| `NEXT_PUBLIC_BASE_URL` | `https://gatto-dashboard.pages.dev` |
-
----
-
-### 7.6 Re-deploy finale
-
-**Deployments** → tre puntini sull'ultimo deployment → **Retry deployment**
+**dash.cloudflare.com → Workers & Pages → gatto-dashboard → Settings → Domains & Routes**
+→ Add Custom Domain → inserisci il tuo dominio.
 
 ---
 
@@ -166,21 +165,25 @@ npm run db:seed:prod        # opzionale: dati di esempio
 
 ## ✅ L'app è online!
 
-Vai su `https://gatto-dashboard.pages.dev`:
-1. Clicca Registrati
+Vai su `https://gatto-dashboard.<tuo-account>.workers.dev`:
+1. Clicca **Registrati**
 2. Inserisci nome, email, password
 3. Verifica l'email → Login → Crea il tuo gatto
 
 ---
 
-## Aggiornamenti futuri (automatici)
+## Aggiornamenti futuri
 
 ```bash
 git add .
 git commit -m "descrizione modifica"
 git push
-# → Cloudflare fa il deploy automatico in ~2 minuti
+
+# Deploy manuale:
+npm run deploy
 ```
+
+> Per CI/CD automatico da GitHub: **dash.cloudflare.com → Workers & Pages → gatto-dashboard → Deployments → Connect to Git**.
 
 ---
 
@@ -189,10 +192,11 @@ git push
 | Problema | Soluzione |
 |----------|-----------|
 | Build fallisce | Controlla che tutti i file siano stati committati |
-| "No such binding DB" | Aggiungi il D1 binding in Settings → re-deploy |
-| Login non funziona | Verifica `AUTH_SECRET` e `AUTH_URL` in produzione |
+| `DB is not defined` | Verifica `database_id` nel `wrangler.toml` e che il binding si chiami `DB` |
+| Login non funziona | Verifica `AUTH_SECRET` e `AUTH_URL` con `wrangler secret list` |
 | Email non arriva | Controlla `RESEND_API_KEY` e spam |
-| Foto non si caricano | Verifica binding R2 in Settings |
+| Foto non si caricano | Verifica che il bucket R2 esista e il binding si chiami `R2` |
+| Worker non trovato | Esegui `wrangler whoami` per verificare l'account attivo |
 
 ---
 
@@ -200,7 +204,7 @@ git push
 
 | Servizio | Limite | Note |
 |----------|--------|------|
-| Pages builds | 500/mese | Più che sufficiente |
+| Workers requests | 100K/giorno | Più che sufficiente |
 | D1 database | 5M letture/giorno | OK per 100+ utenti |
 | R2 storage | 10 GB | Per le foto dei gatti |
 | **Totale** | **€0** | Piano free copre tutto |
@@ -209,10 +213,11 @@ git push
 
 ## Stack
 
-- **Frontend**: Next.js 14 + React + TypeScript + Tailwind CSS
+- **Frontend**: Next.js 15 + React + TypeScript + Tailwind CSS
+- **Runtime**: Cloudflare Workers (via `@opennextjs/cloudflare`)
 - **Database**: Cloudflare D1 (SQLite serverless)
 - **ORM**: Drizzle ORM
 - **Auth**: NextAuth.js v5 (email/password + Google opzionale)
 - **Email**: Resend (verifica account)
 - **Storage foto**: Cloudflare R2
-- **Deploy**: Cloudflare Pages (CI/CD da GitHub)
+- **Deploy**: `npm run deploy` → `opennextjs-cloudflare build` + `wrangler deploy`
