@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 import { registerSchema } from "@/lib/validators";
 import { generateToken } from "@/lib/utils";
 import { nanoid } from "nanoid";
-import { Resend } from "resend";
 import { hashPassword } from "@/lib/password";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
@@ -49,10 +48,11 @@ export async function POST(req: Request) {
 
   // Send email
   try {
-    const resend = new Resend(env.RESEND_API_KEY);
     const verifyUrl = `${env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${token}`;
-    await resend.emails.send({
-      from: env.RESEND_FROM || "Dashboard Gatto <noreply@tuodominio.com>",
+    const from = env.RESEND_FROM || "Dashboard Gatto <noreply@tuodominio.com>";
+
+    const bodyJson = {
+      from,
       to: parsed.data.email,
       subject: "Verifica la tua email 🐾 Dashboard Gatto",
       html: `
@@ -68,6 +68,15 @@ export async function POST(req: Request) {
           <p style="color:#9ca3af;font-size:12px">Dashboard Gatto · Strumento personale, non medico</p>
         </div>
       `,
+    };
+
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bodyJson),
     });
   } catch (e) {
     console.error("Email send failed:", e);

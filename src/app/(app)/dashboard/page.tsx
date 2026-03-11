@@ -6,8 +6,6 @@ import Link from "next/link";
 import { calcAge } from "@/lib/utils";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
-
 export default async function DashboardPage() {
   const session = await auth();
   const { env } = getCloudflareContext();

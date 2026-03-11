@@ -9,8 +9,6 @@ import { generateAlerts } from "@/lib/alertEngine";
 import CatDashboardClient from "@/components/CatDashboardClient";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
-
 interface Props {
   params: Promise<{ catId: string }>;
 }

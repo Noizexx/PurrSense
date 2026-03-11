@@ -6,8 +6,6 @@ import { notFound } from "next/navigation";
 import { calcAge, formatDate } from "@/lib/utils";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
-
 interface Props { params: Promise<{ token: string }> }
 
 export default async function SharePage({ params }: Props) {
