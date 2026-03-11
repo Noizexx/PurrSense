@@ -6,7 +6,6 @@ import { generateToken } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 export async function POST(req: Request, { params }: { params: Promise<{ catId: string }> }) {
   const { catId } = await params;

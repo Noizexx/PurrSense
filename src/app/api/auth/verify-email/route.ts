@@ -4,7 +4,6 @@ import { users, verificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 export async function POST(req: Request) {
   const { token } = await req.json();

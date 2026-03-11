@@ -6,7 +6,6 @@ import { logSchema } from "@/lib/validators";
 import { nanoid } from "nanoid";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 async function verifyOwnership(catId: string, userId: string) {
   const { env } = getCloudflareContext();

@@ -6,7 +6,6 @@ import { catSchema } from "@/lib/validators";
 import { nanoid } from "nanoid";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 // GET /api/cats — lista tutti i gatti dell'utente
 export async function GET() {

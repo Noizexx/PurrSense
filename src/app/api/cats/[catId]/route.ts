@@ -5,7 +5,6 @@ import { eq, and } from "drizzle-orm";
 import { catSchema } from "@/lib/validators";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 async function getCatOrNull(catId: string, userId: string) {
   const { env } = getCloudflareContext();

@@ -4,7 +4,6 @@ import { cats, dailyLogs, prevention } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 export async function GET(req: Request, { params }: { params: Promise<{ catId: string }> }) {
   const { catId } = await params;
