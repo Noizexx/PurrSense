@@ -15,11 +15,7 @@ export default auth((req: NextRequest & { auth: any }) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect logged-in users away from auth pages
-  const authPaths = ["/login", "/register"];
-  if (authPaths.includes(pathname) && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
+  return NextResponse.next();
 });
 
 export const config = {
@@ -27,7 +23,5 @@ export const config = {
     "/dashboard/:path*",
     "/cats/:path*",
     "/api/cats/:path*",
-    "/login",
-    "/register",
   ],
 };
