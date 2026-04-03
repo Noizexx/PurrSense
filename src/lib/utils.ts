@@ -15,7 +15,11 @@ export function formatDate(dateStr: string | null | undefined): string {
 
 export function calcAge(birthDate: string | null | undefined): string {
   if (!birthDate) return "Età non nota";
-  const b = new Date(birthDate);
+  // Parsing manuale per evitare che "YYYY-MM-DD" venga interpretato come UTC
+  const parts = birthDate.split("-");
+  if (parts.length !== 3) return "Età non nota";
+  const b = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  if (isNaN(b.getTime())) return "Età non nota";
   const now = new Date();
   const months =
     (now.getFullYear() - b.getFullYear()) * 12 +

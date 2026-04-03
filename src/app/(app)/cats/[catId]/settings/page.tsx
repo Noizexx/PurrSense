@@ -4,6 +4,15 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
+      {children}
+    </div>
+  );
+}
+
 interface Prevention {
   id: string; type: string; name: string; date?: string; nextDate?: string; notes?: string;
 }
@@ -71,12 +80,6 @@ export default function CatSettingsPage() {
   if (!cat) return <div className="text-center py-16 text-red-400">Gatto non trovato</div>;
 
   const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 transition";
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</label>
-      {children}
-    </div>
-  );
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
