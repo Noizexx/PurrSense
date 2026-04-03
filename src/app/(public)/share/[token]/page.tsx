@@ -11,7 +11,7 @@ interface Props { params: Promise<{ token: string }> }
 export default async function SharePage({ params }: Props) {
   const { token } = await params;
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const share = await db.query.shareTokens.findFirst({

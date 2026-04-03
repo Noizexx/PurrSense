@@ -12,7 +12,7 @@ export async function GET() {
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "Non autenticato" }, { status: 401 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const userCats = await db.query.cats.findMany({
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const parsed = catSchema.safeParse(body);
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const cat = await db.insert(cats).values({

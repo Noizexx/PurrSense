@@ -7,7 +7,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 
 async function verifyOwnership(catId: string, userId: string) {
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
   return db.query.cats.findFirst({
     where: and(eq(cats.id, catId), eq(cats.userId, userId)),
@@ -30,7 +30,7 @@ export async function PUT(
   const parsed = logSchema.partial().safeParse(body);
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const updated = await db.update(dailyLogs)
@@ -54,7 +54,7 @@ export async function DELETE(
   const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   await db.delete(dailyLogs)

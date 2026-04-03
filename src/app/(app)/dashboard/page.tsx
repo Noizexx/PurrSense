@@ -8,7 +8,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const userCats = await db.query.cats.findMany({

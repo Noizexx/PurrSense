@@ -17,7 +17,7 @@ export default async function CatPage({ params }: Props) {
   const { catId } = await params;
 
   const session = await auth();
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   // Ownership check

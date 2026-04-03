@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const { token } = await req.json();
   if (!token) return Response.json({ error: "Token mancante" }, { status: 400 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const vt = await db.query.verificationTokens.findFirst({
