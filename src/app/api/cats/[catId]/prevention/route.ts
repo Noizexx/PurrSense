@@ -8,7 +8,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 
 async function verifyOwnership(catId: string, userId: string) {
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
   return db.query.cats.findFirst({
     where: and(eq(cats.id, catId), eq(cats.userId, userId)),
@@ -24,7 +24,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ catId: 
   const cat = await verifyOwnership(catId, session.user.id);
   if (!cat) return Response.json({ error: "Non trovato" }, { status: 404 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const items = await db.query.prevention.findMany({
@@ -48,7 +48,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ catId: 
   const parsed = preventionSchema.safeParse(body);
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   const item = await db.insert(prevention).values({
@@ -73,7 +73,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ catId
   const prevId = url.searchParams.get("id");
   if (!prevId) return Response.json({ error: "ID mancante" }, { status: 400 });
 
-  const { env } = getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
 
   await db.delete(prevention)
