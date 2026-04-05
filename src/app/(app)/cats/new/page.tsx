@@ -17,6 +17,9 @@ export default function NewCatPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string>("");
+  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [form, setForm] = useState({
     name: "", birthDate: "", sex: "unknown", breed: "",
     lifestyle: "indoor", sterilized: "unknown", microchip: "",
@@ -25,6 +28,23 @@ export default function NewCatPage() {
   });
 
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoPreview(URL.createObjectURL(file));
+    setUploadingPhoto(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok) setPhotoUrl(data.url);
+      else setError(data.error ?? "Errore caricamento foto");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +56,7 @@ export default function NewCatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          photoUrl: photoUrl || undefined,
           foodKcalPerKg: form.foodKcalPerKg ? parseInt(form.foodKcalPerKg) : undefined,
           planDryGrams: parseInt(form.planDryGrams),
           planMealsPerDay: parseInt(form.planMealsPerDay),
@@ -67,6 +88,32 @@ export default function NewCatPage() {
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">{error}</div>
           )}
+
+          {/* Foto profilo */}
+          <div className="flex flex-col items-center gap-2">
+            <label htmlFor="photo-upload" className="cursor-pointer group">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center text-4xl overflow-hidden relative">
+                {photoPreview ? (
+                  <img src={photoPreview} alt="Anteprima" className="w-full h-full object-cover" />
+                ) : (
+                  <span>🐱</span>
+                )}
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-2xl">
+                  <span className="text-white text-xs font-semibold">Cambia</span>
+                </div>
+              </div>
+            </label>
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhoto}
+            />
+            <p className="text-xs text-gray-400">
+              {uploadingPhoto ? "⏳ Caricamento..." : "Clicca per aggiungere la foto"}
+            </p>
+          </div>
 
           <Field label="Nome *">
             <input required value={form.name} onChange={(e) => set("name", e.target.value)}

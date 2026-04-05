@@ -1,4 +1,4 @@
-const PBKDF2_ITERATIONS = 150000;
+const PBKDF2_ITERATIONS = 100000;
 const PBKDF2_KEY_LENGTH_BITS = 256;
 
 function getCrypto(): Crypto {

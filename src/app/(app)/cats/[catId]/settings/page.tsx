@@ -25,6 +25,7 @@ export default function CatSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [newPrev, setNewPrev] = useState({ type: "vaccine", name: "", date: "", nextDate: "", notes: "" });
   const [addingPrev, setAddingPrev] = useState(false);
 
@@ -37,6 +38,21 @@ export default function CatSettingsPage() {
       setPrevention(Array.isArray(prevData) ? prevData : []);
     }).finally(() => setLoading(false));
   }, [catId]);
+
+  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok) setCat((c: any) => ({ ...c, photoUrl: data.url }));
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleSaveCat = async () => {
     setSaving(true);
@@ -95,6 +111,33 @@ export default function CatSettingsPage() {
       <div className="bg-white rounded-2xl border border-amber-100 shadow-sm p-5 space-y-4">
         <h2 className="font-bold text-gray-700">Profilo</h2>
         {saved && <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl p-2 text-center">✅ Salvato!</div>}
+
+        {/* Foto profilo */}
+        <div className="flex flex-col items-center gap-2">
+          <label htmlFor="photo-upload-settings" className="cursor-pointer group">
+            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center text-4xl overflow-hidden relative">
+              {cat.photoUrl ? (
+                <img src={cat.photoUrl} alt={cat.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>🐱</span>
+              )}
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-2xl">
+                <span className="text-white text-xs font-semibold">Cambia</span>
+              </div>
+            </div>
+          </label>
+          <input
+            id="photo-upload-settings"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handlePhoto}
+          />
+          <p className="text-xs text-gray-400">
+            {uploadingPhoto ? "⏳ Caricamento..." : "Clicca per cambiare la foto"}
+          </p>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <Field label="Nome">
             <input value={cat.name} onChange={e => setCat((c: any) => ({ ...c, name: e.target.value }))} className={inputCls} />

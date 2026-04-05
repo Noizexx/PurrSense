@@ -12,6 +12,7 @@ export const registerSchema = z.object({
 
 export const catSchema = z.object({
   name:            z.string().min(1, "Nome obbligatorio").max(50),
+  photoUrl:        z.string().optional(),
   birthDate:       z.string().optional(),
   sex:             z.enum(["male", "female", "unknown"]).default("unknown"),
   breed:           z.string().max(50).default("unknown"),
