@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -6,8 +7,8 @@ export default function HomePage() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto w-full">
         <div className="flex items-center gap-2">
-          <span className="text-3xl">🐾</span>
-          <span className="font-bold text-xl text-gray-800">Dashboard Gatto</span>
+          <Image src="/sally-logo.png" alt="Sally" width={40} height={40} className="rounded-full" />
+          <span className="font-bold text-xl text-gray-800">Sally</span>
         </div>
         <div className="flex gap-3">
           <Link
@@ -72,7 +73,7 @@ export default function HomePage() {
       </div>
 
       <footer className="text-center text-xs text-gray-400 pb-6">
-        Dashboard Gatto · Fonti: WSAVA, AAHA/AAFP 2020, ESCCAP IT, Cornell Feline Health Center
+        Sally · Fonti: WSAVA, AAHA/AAFP 2020, ESCCAP IT, Cornell Feline Health Center
       </footer>
     </main>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dashboard Gatto 🐾",
+  title: "Sally 🐾",
   description: "Monitora la salute e il benessere del tuo gatto",
 };
 

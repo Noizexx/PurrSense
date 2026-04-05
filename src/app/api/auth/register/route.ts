@@ -48,15 +48,15 @@ export async function POST(req: Request) {
   // Send email
   try {
     const verifyUrl = `${env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${token}`;
-    const from = env.RESEND_FROM || "Dashboard Gatto <noreply@tuodominio.com>";
+    const from = env.RESEND_FROM || "Sally <noreply@tuodominio.com>";
 
     const bodyJson = {
       from,
       to: parsed.data.email,
-      subject: "Verifica la tua email 🐾 Dashboard Gatto",
+      subject: "Verifica la tua email 🐾 Sally",
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-          <h2 style="color:#92400e">🐾 Benvenuto su Dashboard Gatto!</h2>
+          <h2 style="color:#92400e">🐾 Benvenuto su Sally!</h2>
           <p>Ciao <strong>${parsed.data.name}</strong>,</p>
           <p>Clicca il pulsante per verificare il tuo account:</p>
           <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#f59e0b;color:white;text-decoration:none;border-radius:12px;font-weight:bold;margin:16px 0">
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
           </a>
           <p style="color:#6b7280;font-size:14px">Il link scade tra 24 ore.<br>Se non ti sei registrato, ignora questa email.</p>
           <hr style="border:none;border-top:1px solid #fde68a;margin:24px 0">
-          <p style="color:#9ca3af;font-size:12px">Dashboard Gatto · Strumento personale, non medico</p>
+          <p style="color:#9ca3af;font-size:12px">Sally · Strumento personale, non medico</p>
         </div>
       `,
     };
