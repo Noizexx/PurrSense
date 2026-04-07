@@ -42,7 +42,7 @@ export default async function SharePage({ params }: Props) {
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Image src="/sally-logo.png" alt="Sally" width={40} height={40} className="rounded-full" />
+          <Image src="/sally-logo.png" alt="Sally" width={44} height={44} />
           <div>
             <h1 className="font-bold text-xl text-gray-800">Sally — Vet Share</h1>
             <p className="text-sm text-gray-500">Accesso read-only · Scade il {formatDate(share.expiresAt)}</p>
